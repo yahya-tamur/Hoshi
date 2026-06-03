@@ -1,46 +1,74 @@
 /* ================================================================
-   HOSHI BOARD STYLES
+   GLOBAL STONE PROPERTIES
    ================================================================ */
 
-/* ---------- DEFAULT (KAYA) ---------- */
+/* Texture stone sizes */
+:root {
+    --cvs-stone-radius: 0.485;
+    --cvs-marker-curr-radius: 0.4955;
+    --cvs-marker-next-radius: 0.480;
+}
+
+/* Flat stone sizes */
+body.stone-minimal,
+body.stone-midnight {
+    --cvs-stone-radius: 0.50;
+    --cvs-marker-curr-radius: 0.475;
+}
+
+/* Ivory stone stroke base */
+:root {
+    --cvs-ivory-blk-stroke-tl: #5a5a5a;
+    --cvs-ivory-blk-stroke-br: #383644;
+    --cvs-ivory-wht-stroke-tl: #bb5759;
+    --cvs-ivory-wht-stroke-br: #6f101b;
+}
+
+
+/* ================================================================
+   THEME: KAYA (TRADITIONAL)
+   ================================================================ */
+
+/* ---------- BOARD ---------- */
 :root, body.board-kaya {
-    --texture-board: "./Textures/kaya-masame.png";
+    --texture-board: url("./Textures/kaya-masame.png");
 
-    /* Slate & Shell Shadows */
+    /* Slate & shell shadows */
     --cvs-stone-shadow: rgba(74, 51, 27, 1);
     --cvs-stone-blk-gap: rgba(102, 69, 44, 0.4);
     --cvs-stone-wht-gap: rgba(140, 96, 70, 0.4);
 }
 
-/* ---------- MINIMAL ---------- */
-body.board-minimal {
-    --cvs-board-fallback: #deab62;
-    --cvs-coord-highlight: #cc3a00;
-    --texture-board: none;
+/* ---------- STONES (SLATE & SHELL) ---------- */
+:root, body.stone-shell {
+    --texture-black: url("./Textures/slate.png");
+    --texture-white-a: url("./Textures/shell-a.png");
+    --texture-white-b: url("./Textures/shell-b.png");
+    --texture-white-c: url("./Textures/shell-c.png");
 
-    /* Slate & Shell Shadows */
-    --cvs-stone-shadow: rgba(74, 51, 27, 1);
-    --cvs-stone-blk-gap: rgba(102, 69, 44, 0.4);
-    --cvs-stone-wht-gap: rgba(140, 96, 70, 0.4);
+    /* Ensure ivory textures are cleared if switching back to shell */
+    --texture-black-a: none;
+    --texture-black-b: none;
+    --texture-black-c: none;
 }
 
-/* ---------- MIDNIGHT ---------- */
-body.board-midnight {
-    --cvs-board-fallback: #1a1a1a;
-    --cvs-grid-line: #a0a0a0;
-    --cvs-star-point: #a0a0a0;
-    --cvs-star-radius: 0.09;
-    --cvs-coord-text: #a0a0a0;
-    --cvs-coord-highlight: #e6b450;
-    --texture-board: none;
-
-    /* Ivory Shadows */
-    --cvs-stone-shadow: rgba(15, 10, 5, 0.95);
-    --cvs-stone-blk-gap: rgba(40, 25, 15, 0.6);
-    --cvs-stone-wht-gap: rgba(40, 25, 15, 0.6);
+/* ---------- MIXES ---------- */
+body.board-kaya.stone-ivory {
+    --cvs-stone-shadow: rgba(112, 68, 37, 1);
+    --cvs-stone-blk-gap: rgba(112, 68, 37, 0.30);
+    --cvs-stone-wht-gap: rgba(112, 68, 37, 0.30);
 }
 
-/* ---------- SANDALWOOD ---------- */
+body.board-kaya.stone-midnight {
+    --cvs-minimal-blk-stroke: transparent;
+}
+
+
+/* ================================================================
+   THEME: SANDALWOOD (SHOSOIN TREASURE)
+   ================================================================ */
+
+/* ---------- BOARD ---------- */
 body.board-sandalwood {
     --cvs-board-fallback: #C68E58;
     --cvs-grid-line: #F3E5AB;
@@ -49,70 +77,97 @@ body.board-sandalwood {
     --cvs-coord-highlight: #b87244;
     --cvs-sandalwood-dot: #b87244;
     --cvs-star-radius: 0.10;
-    --texture-board: "./Textures/sandalwood.png";
+    --texture-board: url("./Textures/sandalwood.png");
 
-    /* Ivory Shadows */
+    /* Ivory shadows */
     --cvs-stone-shadow: rgba(15, 10, 5, 0.95);
     --cvs-stone-blk-gap: rgba(40, 25, 15, 0.6);
     --cvs-stone-wht-gap: rgba(40, 25, 15, 0.6);
 }
 
+/* ---------- STONES (DYED IVORY) ---------- */
+body.stone-ivory {
+    --texture-black: none;
+    --texture-black-a: url("./Textures/sandalblack-a.png");
+    --texture-black-b: url("./Textures/sandalblack-b.png");
+    --texture-black-c: url("./Textures/sandalblack-c.png");
+
+    --texture-white-a: url("./Textures/sandalred-a.png");
+    --texture-white-b: url("./Textures/sandalred-b.png");
+    --texture-white-c: url("./Textures/sandalred-c.png");
+}
+
+/* ---------- MIXES ---------- */
+body.board-sandalwood.stone-shell {
+    --cvs-stone-shadow: rgba(0, 0, 0, 1);
+    --cvs-stone-blk-gap: rgba(38, 28, 17, 0.4);
+    --cvs-stone-wht-gap: rgba(38, 28, 17, 0.4);
+
+    --cvs-stone-blk-stroke-tl: rgba(175, 154, 148, 1);
+    --cvs-stone-blk-stroke-br: rgba(137, 101, 93, 1);
+}
+
+body.board-sandalwood.stone-minimal {
+    --cvs-minimal-blk-stroke: #594444;
+}
+
 
 /* ================================================================
-   HOSHI STONE STYLES
+   THEME: SANDALWOOD RECONSTRUCTED
    ================================================================ */
 
-/* ---------- STONE PROPERTIES ---------- */
+/* ---------- BOARD ---------- */
+body.board-sandalwood-r {
+    --cvs-board-fallback: #dcb388; /* A slightly cleaner/lighter base wood color */
+    --cvs-grid-line: #FFFFF0;
+    --cvs-coord-text: #FFFFF0;
+    --cvs-coord-highlight: #e58275;
+    --texture-board: url('./Textures/sandalwood-r.png');
+    --cvs-sandalwood-dot: #e5545c; /* A cleaner red for the reconstructed flower dot */
+}
 
-  /* Texture Stone Sizes */
-  :root {
-     --cvs-stone-radius: 0.485;
-     --cvs-marker-curr-radius: 0.4955;
-     --cvs-marker-next-radius: 0.480;
-  }
-
-  /* Flat Stone Sizes */
-  body.stone-minimal,
-  body.stone-midnight {
-     --cvs-stone-radius: 0.50;
-     --cvs-marker-curr-radius: 0.475;
-  }
-
-  /* Ivory Stone Stroke */
-  :root {
-      --cvs-ivory-blk-stroke-tl: #5a5a5a;
-      --cvs-ivory-blk-stroke-br: #383644;
-
-      --cvs-ivory-wht-stroke-tl: #bb5759;
-      --cvs-ivory-wht-stroke-br: #6f101b;
-  }
-
-/* ---------- DEFAULT (SLATE & SHELL) ---------- */
-:root, body.stone-shell {
-    --texture-black: "./Textures/slate.png";
-    --texture-white-a: "./Textures/shell-a.png";
-    --texture-white-b: "./Textures/shell-b.png";
-    --texture-white-c: "./Textures/shell-c.png";
-
-    /* Ensure Ivory textures are cleared if switching back to Shell */
+/* ---------- STONES (RED & BLACK) ---------- */
+body.stone-sandal-r {
+    --texture-black: url('./Textures/sandalblack-r.png');
     --texture-black-a: none;
     --texture-black-b: none;
     --texture-black-c: none;
+
+    --texture-white: url('./Textures/sandalred-r.png');
+    --texture-white-a: none;
+    --texture-white-b: none;
+    --texture-white-c: none;
+
+    --cvs-ivory-blk-stroke-tl: #3e5b6a;
+    --cvs-ivory-blk-stroke-br: #1e2644;
+
+    /* Give the red stones a dedicated stroke that matches their core color */
+    --cvs-ivory-wht-stroke-tl: #d24b25;
+    --cvs-ivory-wht-stroke-br: #a62629;
+
+    /* Adjust markup text backgrounds to match the red stones */
+    --cvs-markup-ivory-blk-bg: rgba(0, 0, 0, 0.75);
+    --cvs-markup-ivory-wht-bg: rgba(139, 0, 0, 0.75);
 }
 
-/* ---------- DYED IVORY (SANDALWOOD SET) ---------- */
-body.stone-ivory {
-    --texture-black: none;
-    --texture-black-a: "./Textures/sandalblack-a.png";
-    --texture-black-b: "./Textures/sandalblack-b.png";
-    --texture-black-c: "./Textures/sandalblack-c.png";
 
-    --texture-white-a: "./Textures/sandalred-a.png";
-    --texture-white-b: "./Textures/sandalred-b.png";
-    --texture-white-c: "./Textures/sandalred-c.png";
+/* ================================================================
+   THEME: MINIMAL
+   ================================================================ */
+
+/* ---------- BOARD ---------- */
+body.board-minimal {
+    --cvs-board-fallback: #deab62;
+    --cvs-coord-highlight: #cc3a00;
+    --texture-board: none;
+
+    /* Slate & shell shadows */
+    --cvs-stone-shadow: rgba(74, 51, 27, 1);
+    --cvs-stone-blk-gap: rgba(102, 69, 44, 0.4);
+    --cvs-stone-wht-gap: rgba(140, 96, 70, 0.4);
 }
 
-/* ---------- FLAT (MINIMAL) ---------- */
+/* ---------- STONES ---------- */
 body.stone-minimal {
     --cvs-stone-black: #111111;
     --cvs-stone-white: #eeeeee;
@@ -128,7 +183,40 @@ body.stone-minimal {
     --texture-white-c: none;
 }
 
-/* ---------- FLAT DARK (MIDNIGHT) ---------- */
+/* ---------- MIXES ---------- */
+body.board-minimal.stone-ivory {
+    --cvs-stone-shadow: rgba(112, 68, 37, 1);
+    --cvs-stone-blk-gap: rgba(112, 68, 37, 0.30);
+    --cvs-stone-wht-gap: rgba(112, 68, 37, 0.30);
+}
+
+body.board-minimal.stone-midnight {
+    /* Flat dark black stones have no stroke */
+    --cvs-minimal-blk-stroke: transparent;
+}
+
+
+/* ================================================================
+   THEME: MIDNIGHT
+   ================================================================ */
+
+/* ---------- BOARD ---------- */
+body.board-midnight {
+    --cvs-board-fallback: #1a1a1a;
+    --cvs-grid-line: #a0a0a0;
+    --cvs-star-point: #a0a0a0;
+    --cvs-star-radius: 0.09;
+    --cvs-coord-text: #a0a0a0;
+    --cvs-coord-highlight: #e6b450;
+    --texture-board: none;
+
+    /* Ivory shadows */
+    --cvs-stone-shadow: rgba(15, 10, 5, 0.95);
+    --cvs-stone-blk-gap: rgba(40, 25, 15, 0.6);
+    --cvs-stone-wht-gap: rgba(40, 25, 15, 0.6);
+}
+
+/* ---------- STONES ---------- */
 body.stone-midnight {
     --cvs-stone-black: #111111;
     --cvs-stone-white: #a8a8a8;
@@ -144,53 +232,7 @@ body.stone-midnight {
     --texture-white-c: none;
 }
 
-
-/* ================================================================
-   BOARD & STONE COMBINATIONS
-   Explicit overrides for mix-and-matching boards with specific stones
-   ================================================================ */
-
-/* --- KAYA MIXES --- */
-body.board-kaya.stone-ivory {
-    --cvs-stone-shadow: rgba(112, 68, 37, 1);
-    --cvs-stone-blk-gap: rgba(112, 68, 37, 0.30);
-    --cvs-stone-wht-gap: rgba(112, 68, 37, 0.30);
-}
-
-body.board-kaya.stone-midnight {
-    --cvs-minimal-blk-stroke: transparent;
-}
-
-
-/* --- SANDALWOOD MIXES --- */
-body.board-sandalwood.stone-shell {
-    --cvs-stone-shadow: rgba(0, 0, 0, 1);
-    --cvs-stone-blk-gap: rgba(38, 28, 17, 0.4);
-    --cvs-stone-wht-gap: rgba(38, 28, 17, 0.4);
-
-    --cvs-stone-blk-stroke-tl: rgba(175, 154, 148, 1);
-    --cvs-stone-blk-stroke-br: rgba(137, 101, 93, 1);
-}
-
-body.board-sandalwood.stone-minimal {
-    --cvs-minimal-blk-stroke: #594444;
-}
-
-
-/* --- MINIMAL MIXES --- */
-body.board-minimal.stone-ivory {
-    --cvs-stone-shadow: rgba(112, 68, 37, 1);
-    --cvs-stone-blk-gap: rgba(112, 68, 37, 0.30);
-    --cvs-stone-wht-gap: rgba(112, 68, 37, 0.30);
-}
-
-body.board-minimal.stone-midnight {
-    /* Flat Dark black stones have no stroke */
-    --cvs-minimal-blk-stroke: transparent;
-}
-
-
-/* --- MIDNIGHT MIXES --- */
+/* ---------- MIXES ---------- */
 body.board-midnight.stone-shell {
   --cvs-stone-shadow: rgba(0, 0, 0, 1);
   --cvs-stone-blk-gap: rgba(38, 28, 17, 0.4);

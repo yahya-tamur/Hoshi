@@ -108,37 +108,26 @@ function loadThemeFromCSS() {
     THEME.textMain = getVar('--text-main');
 }
 
-function loadTextures() {
+async function loadTextures() {
     const boardSrc = getTexturePath('--texture-board');
     const blackA = getTexturePath('--texture-black-a') || getTexturePath('--texture-black');
     const blackB = getTexturePath('--texture-black-b');
     const blackC = getTexturePath('--texture-black-c');
-    const whiteA = getTexturePath('--texture-white-a');
+    const whiteA = getTexturePath('--texture-white-a') || getTexturePath('--texture-white');
     const whiteB = getTexturePath('--texture-white-b');
     const whiteC = getTexturePath('--texture-white-c');
 
-    // Reset existing images safely
-    textures.board = new Image();
-    textures.black = [new Image(), new Image(), new Image()];
-    textures.white = [new Image(), new Image(), new Image()];
-    textures.starSvg = new Image();
+    // Helper to wrap Image loading safely in a Promise
+    const loadImg = (src) => new Promise((resolve) => {
+        if (!src) return resolve(new Image());
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(new Image());
+        img.src = src;
+    });
 
-    // Reattach listeners
-    textures.board.onload = () => render();
-    textures.black.forEach(img => img.onload = () => { stoneCache.cellWidth = 0; render(); });
-    textures.white.forEach(img => img.onload = () => { stoneCache.cellWidth = 0; render(); });
-    textures.starSvg.onload = () => render();
-
-    if (boardSrc) textures.board.src = boardSrc;
-    if (blackA) textures.black[0].src = blackA;
-    if (blackB) textures.black[1].src = blackB;
-    if (blackC) textures.black[2].src = blackC;
-    if (whiteA) textures.white[0].src = whiteA;
-    if (whiteB) textures.white[1].src = whiteB;
-    if (whiteC) textures.white[2].src = whiteC;
-
-    // Dynamically compile the SVG with the active CSS Theme Colors
-    const isSandalwood = document.body.classList.contains('board-sandalwood');
+    let starSvgSrc = null;
+    const isSandalwood = document.body.className.includes('board-sandalwood');
     if (isSandalwood) {
         const petalColor = THEME.gridLineColor || '#FFFFF0';
         const dotColor = THEME.sandalwoodDotColor;
@@ -146,11 +135,27 @@ function loadTextures() {
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
         <circle fill="${dotColor}" cx="256.16" cy="250.36" r="40"/>
         <path fill="${petalColor}" d="M334.44,143.73c-8.04-7.53-19.74-9.26-31.59-5.92c-6.27-10.6-15.93-17.43-27.17-17.62 c-19.56-0.29-35.74,19.91-35.89,45.19c-0.23,13.56,8.59,25.78,17.46,34.25c-1.89-5.41-2.23-11.36,0.04-17.02 c5.09-12.71,19.84-18.75,32.95-13.5c13.11,5.25,19.6,19.81,14.51,32.51c-2.24,5.59-6.52,9.6-11.54,12.21 c12.24-0.04,27.01-2.74,36.24-12.54C346.55,182.81,348.79,157.03,334.44,143.73z"/><path fill="${petalColor}" d="M380.18,292.46c4.88-9.88,3.13-21.58-3.51-31.95c8.32-9.07,12.06-20.3,8.98-31.12 c-5.4-18.8-29.43-28.42-53.66-21.23c-13.05,3.71-22.17,15.7-27.7,26.65c4.63-3.38,10.22-5.43,16.3-4.91 c13.64,1.18,23.7,13.54,22.48,27.61c-1.22,14.07-13.26,24.51-26.9,23.33c-6-0.52-11.08-3.46-15.04-7.5 c3.6,11.7,10.46,25.06,22.52,31.04C346.29,315.39,371.62,310.06,380.18,292.46z"/><path fill="${petalColor}" d="M254.11,380.88c10.9,1.6,21.5-3.66,29.32-13.16c11.19,5.13,23.03,5.23,32.37-1.03 c16.23-10.92,17.99-36.75,3.7-57.59c-7.55-11.27-21.76-16.27-33.88-18.16c4.64,3.36,8.31,8.05,9.68,14 c3.07,13.34-5.6,26.72-19.36,29.88c-13.76,3.17-27.4-5.08-30.47-18.42c-1.35-5.87-0.12-11.6,2.51-16.61 c-10.03,7.02-20.62,17.66-22.61,30.97C221.87,355.69,234.74,378.15,254.11,380.88z"/><path fill="${petalColor}" d="M128.83,288.91c1.62,10.89,9.73,19.52,21.09,24.26c-1.67,12.2,1.66,23.56,10.35,30.69 c15.15,12.38,40.38,6.59,56.2-13.13c8.61-10.49,9.28-25.53,7.58-37.69c-1.88,5.42-5.3,10.29-10.6,13.32 c-11.88,6.8-27.2,2.37-34.21-9.88c-7.01-12.26-3.06-27.7,8.82-34.5c5.23-2.99,11.07-3.47,16.63-2.41 c-9.62-7.57-22.88-14.63-36.19-12.68C143.62,250.76,125.84,269.58,128.83,288.91z"/><path fill="${petalColor}" d="M179.47,144.04c-9.72,5.19-15.11,15.72-15.76,28.01c-12.05,2.53-21.63,9.48-25.42,20.07 c-6.56,18.43,7.37,40.25,31.26,48.51c12.77,4.58,27.17,0.15,38.04-5.53c-5.73,0.05-11.47-1.54-16.1-5.5 c-10.4-8.9-11.38-24.81-2.19-35.54c9.18-10.72,25.06-12.2,35.45-3.29c4.57,3.92,6.99,9.26,7.86,14.85 c3.89-11.6,6.09-26.46-0.22-38.35C220.37,145.14,196.68,134.73,179.47,144.04z"/></svg>`;
-        textures.starSvg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+        starSvgSrc = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
     }
+
+    // Wait for everything to finish downloading before we wipe the old textures
+    const results = await Promise.all([
+        loadImg(boardSrc), loadImg(starSvgSrc),
+        loadImg(blackA), loadImg(blackB), loadImg(blackC),
+        loadImg(whiteA), loadImg(whiteB), loadImg(whiteC)
+    ]);
+
+    // Atomic assignment prevents partial blanks
+    textures.board = results[0];
+    textures.starSvg = results[1];
+    textures.black = [results[2], results[3], results[4]];
+    textures.white = [results[5], results[6], results[7]];
+
+    // Explicitly wipe the cache so the next render() forces a pristine rebuild
+    stoneCache = { black: [null, null, null], white: [null, null, null], cellWidth: 0 };
 }
 
-function applyTheme(uiTheme, boardStyle, stoneStyle, forceRepaint = false) {
+async function applyTheme(uiTheme, boardStyle, stoneStyle, forceRepaint = false) {
     let classes = [];
     if (uiTheme === 'dark') classes.push('theme-dark');
     if (uiTheme === 'light') classes.push('theme-light');
@@ -160,12 +165,16 @@ function applyTheme(uiTheme, boardStyle, stoneStyle, forceRepaint = false) {
     if (boardStyle) classes.push(`board-${boardStyle}`);
     if (stoneStyle) classes.push(`stone-${stoneStyle}`);
 
+    if (boardStyle === 'sandalwood-r') classes.push('board-sandalwood');
+    if (stoneStyle === 'sandal-r') classes.push('stone-ivory');
+
     document.body.className = classes.join(' ');
     loadThemeFromCSS();
 
     if (forceRepaint) {
+        // Pauses the execution line here until all new images are downloaded
+        await loadTextures();
         stoneCache = { black: [null, null, null], white: [null, null, null], cellWidth: 0 };
-        loadTextures();
         render();
         updateTreeUI();
         drawAnalysisChart();
@@ -226,11 +235,6 @@ const textures = {
     starSvg: new Image()
 };
 
-textures.board.onload = () => render();
-textures.black.forEach(img => img.onload = () => { stoneCache.cellWidth = 0; render(); });
-textures.white.forEach(img => img.onload = () => { stoneCache.cellWidth = 0; render(); });
-textures.starSvg.onload = () => render();
-
 let stoneCache = { black: [null, null, null], white: [null, null, null], cellWidth: 0 };
 
 /**
@@ -275,9 +279,9 @@ function stepDownImage(img, targetWidth, targetHeight) {
 }
 
 /**
- * Restores edge contrast lost during canvas downscaling (Matches Photoshop's 'Bicubic Sharper').
+ * Restores edge contrast lost during canvas downscaling (Bicubic Sharper).
  */
-function applyBicubicSharpen(ctx, width, height, strength = 0.55) {
+function applyBicubicSharpen(ctx, width, height, strength = 0.65) {
     const w = Math.floor(width);
     const h = Math.floor(height);
     const imageData = ctx.getImageData(0, 0, w, h);
@@ -317,7 +321,7 @@ function applyBicubicSharpen(ctx, width, height, strength = 0.55) {
     if (CELL_WIDTH <= 0) return;
     stoneCache.cellWidth = CELL_WIDTH;
 
-    const isStoneIvory = document.body.classList.contains('stone-ivory');
+    const isStoneIvory = document.body.classList.contains('stone-ivory') || document.body.classList.contains('stone-sandal-r');
     const isStoneMidnight = document.body.classList.contains('stone-midnight');
     const isStoneMinimal = document.body.classList.contains('stone-minimal') || isStoneMidnight;
 
@@ -774,8 +778,14 @@ if (savedConfig) {
     }
 }
 
-// Apply the loaded theme instantly
-applyTheme(appSettings.theme, appSettings.boardStyle, appSettings.stoneStyle);
+// Apply the loaded theme
+let bootBoard = appSettings.boardStyle;
+let bootStone = appSettings.stoneStyle;
+if (appSettings.optRestoredColors) {
+    if (bootBoard === 'sandalwood') bootBoard = 'sandalwood-r';
+    if (bootStone === 'ivory') bootStone = 'sandal-r';
+}
+applyTheme(appSettings.theme, bootBoard, bootStone);
 
 let skipSaveConfirm = !appSettings.optSaveConfirm;
 let skipNewConfirm = !appSettings.optNewConfirm;
@@ -1401,7 +1411,7 @@ function drawWoodBackground() {
 
 function drawGrid() {
     ctx.save();
-    const isSandalwood = document.body.classList.contains('board-sandalwood');
+    const isSandalwood = document.body.className.includes('board-sandalwood');
 
     // 1. Only punch holes in the grid if we are using the Sandalwood flower SVGs
     if (isSandalwood) {
@@ -1510,7 +1520,7 @@ function drawGrid() {
 }
 
 function drawStarPoints() {
-    const isSandalwood = document.body.classList.contains('board-sandalwood');
+    const isSandalwood = document.body.className.includes('board-sandalwood');
     const starPoints = [3, 9, 15];
     ctx.fillStyle = THEME.starPointColor;
     const radius = Math.max(1.5, CELL_WIDTH * THEME.starPointRadiusMultiplier);
@@ -2146,7 +2156,7 @@ function drawTreeMarkers() {
 
             let textAlpha = (hasPermanentSymbol || isHoveringSymbol) ? 0.5 : 1.0;
 
-            const isStoneIvory = document.body.classList.contains('stone-ivory');
+            const isStoneIvory = document.body.classList.contains('stone-ivory') || document.body.classList.contains('stone-sandal-r');
             let currentShadowColor = currentNode.color === 'black' ? 'rgba(0, 0, 0, 1.0)' : 'transparent';
             let currentShadowBlur = currentNode.color === 'black' ? 4 : 0;
             let backingStroke = undefined;
@@ -2360,7 +2370,7 @@ function updateThemePreviewCanvas() {
     }
 
     // 2. Sandalwood Pattern Hole Punch
-    const isSandalwood = document.body.classList.contains('board-sandalwood');
+    const isSandalwood = document.body.className.includes('board-sandalwood');
     pctx.save();
     if (isSandalwood) {
         pctx.beginPath();
@@ -2589,7 +2599,7 @@ function drawMarkerSymbol(x, y, stoneColor, markType, labelText, isGhost) {
         let needsBacking = false;
         let backingStyle = '';
 
-        const isStoneIvory = document.body.classList.contains('stone-ivory');
+        const isStoneIvory = document.body.classList.contains('stone-ivory') || document.body.classList.contains('stone-sandal-r');
 
         if (isStoneIvory && stoneColor) {
             needsBacking = true;
@@ -2643,7 +2653,7 @@ function drawMarkerSymbol(x, y, stoneColor, markType, labelText, isGhost) {
                 ctx.fillText(finalLabel, pixelX, pixelY + 1);
             }
         } else {
-            const isStoneIvory = document.body.classList.contains('stone-ivory');
+            const isStoneIvory = document.body.classList.contains('stone-ivory') || document.body.classList.contains('stone-sandal-r');
 
             if (!isStoneIvory && stoneColor === 'white' && hasScoreTextOnStone) {
                 ctx.beginPath();
@@ -5236,16 +5246,14 @@ document.getElementById('btn-options-bottom').addEventListener('click', (e) => {
         let customOption = presetSelect.querySelector('option[value="custom"]');
 
         if (matched) {
-            // It matches a preset, so destroy the custom option if it exists
             if (customOption) customOption.remove();
             presetSelect.value = matched;
         } else {
-            // It's a mixed combination, so dynamically build and select the custom option
             if (!customOption) {
                 customOption = document.createElement('option');
                 customOption.value = 'custom';
                 customOption.text = 'Custom';
-                customOption.hidden = true; // Makes it unselectable inside the dropdown list
+                customOption.hidden = true;
                 presetSelect.appendChild(customOption);
             }
             presetSelect.value = 'custom';
@@ -5253,20 +5261,59 @@ document.getElementById('btn-options-bottom').addEventListener('click', (e) => {
     };
     updatePresetDropdown();
 
-    // 4. Live Preview Triggers
-    const triggerLivePreview = () => {
-        applyTheme(themeSelect.value, boardSelect.value, stoneSelect.value, true);
+    // 4. Toggle Visibility Logic
+    const toggleContainer = document.getElementById('restored-colors-container');
+    const restoredCheckbox = document.getElementById('opt-restored-colors');
+    const restoredCredit = document.getElementById('restored-colors-credit');
+    const originalSandalwoodCredit = document.getElementById('original-sandalwood-credit');
+
+    // Set initial checkbox state
+    restoredCheckbox.checked = appSettings.optRestoredColors || false;
+
+    const updateToggleVisibility = () => {
+        if (boardSelect.value === 'sandalwood' || stoneSelect.value === 'ivory') {
+            toggleContainer.style.display = 'block';
+            // Only show the text if the IVORY stones are selected AND the toggle is checked
+            if (restoredCredit) {
+                restoredCredit.style.display = (stoneSelect.value === 'ivory' && restoredCheckbox.checked) ? 'block' : 'none';
+            }
+        } else {
+            toggleContainer.style.display = 'none';
+            restoredCheckbox.checked = false; // Auto-uncheck if hidden
+            if (restoredCredit) restoredCredit.style.display = 'none';
+        }
     };
 
-    // Helper: Automatically adjust the settings swatches to 65% for dark/complex boards
+    // 5. Live Preview Triggers
+    const triggerLivePreview = () => {
+        let bStyle = boardSelect.value;
+        let sStyle = stoneSelect.value;
+
+        if (restoredCheckbox.checked) {
+            if (bStyle === 'sandalwood') bStyle = 'sandalwood-r';
+            if (sStyle === 'ivory') sStyle = 'sandal-r';
+        }
+
+        // Toggle the specific credits based on the final parsed styles
+        if (restoredCredit) {
+            restoredCredit.style.display = (sStyle === 'sandal-r') ? 'block' : 'none';
+        }
+        if (originalSandalwoodCredit) {
+            originalSandalwoodCredit.style.display = (bStyle === 'sandalwood') ? 'block' : 'none';
+        }
+
+        applyTheme(themeSelect.value, bStyle, sStyle, true);
+    };
+
+    restoredCheckbox.onchange = triggerLivePreview;
+
     const autoAdjustBubbleOpacity = (boardStyle) => {
-        const isDarkBoard = (boardStyle === 'sandalwood' || boardStyle === 'midnight');
+        const isDarkBoard = (boardStyle.includes('sandalwood') || boardStyle === 'midnight');
         const targetAlpha = isDarkBoard ? 0.65 : 0.75;
 
         ['best', 'good', 'okay', 'bad', 'terrible'].forEach(k => {
             const swatch = document.getElementById(`swatch-${k}`);
             if (swatch && swatch.dataset.color) {
-                // Extract the RGB values and inject the new Alpha
                 const match = swatch.dataset.color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
                 if (match) {
                     const newColor = `rgba(${match[1]}, ${match[2]}, ${match[3]}, ${targetAlpha})`;
@@ -5277,30 +5324,32 @@ document.getElementById('btn-options-bottom').addEventListener('click', (e) => {
         });
     };
 
-    // If they change the UI Theme
     themeSelect.onchange = triggerLivePreview;
 
-    // If they change the Master Preset
     presetSelect.onchange = (ev) => {
         const val = ev.target.value;
         if (presets[val]) {
             boardSelect.value = presets[val].board;
             stoneSelect.value = presets[val].stone;
-            updatePresetDropdown(); // Clean up the custom element immediately
-            autoAdjustBubbleOpacity(presets[val].board);
+            updatePresetDropdown();
+            updateToggleVisibility();
+            autoAdjustBubbleOpacity(boardSelect.value);
             triggerLivePreview();
         }
     };
 
-    // If they manually change the board or stone (which might shift preset to "custom")
     const onSubChange = () => {
         updatePresetDropdown();
+        updateToggleVisibility();
         autoAdjustBubbleOpacity(boardSelect.value);
         triggerLivePreview();
     };
 
     boardSelect.onchange = onSubChange;
     stoneSelect.onchange = onSubChange;
+
+    // Initialize toggle state properly on modal open
+    updateToggleVisibility();
 
     document.getElementById('opt-current-move').checked = appSettings.optCurrentMove;
     document.getElementById('opt-coord-highlight').checked = appSettings.optCoordHighlight;
@@ -5685,7 +5734,13 @@ document.getElementById('download-modal-cancel').addEventListener('click', async
 
 // --- RESTORED OPTIONS & CLICK-AWAY LOGIC ---
 document.getElementById('options-modal-cancel').addEventListener('click', () => {
-    applyTheme(appSettings.theme, appSettings.boardStyle, appSettings.stoneStyle, true); // Revert the live preview if they cancel
+    let bStyle = appSettings.boardStyle;
+    let sStyle = appSettings.stoneStyle;
+    if (appSettings.optRestoredColors) {
+        if (bStyle === 'sandalwood') bStyle = 'sandalwood-r';
+        if (sStyle === 'ivory') sStyle = 'sandal-r';
+    }
+    applyTheme(appSettings.theme, bStyle, sStyle, true);
     optionsOverlay.classList.remove('active');
 });
 
@@ -5694,6 +5749,7 @@ document.getElementById('options-modal-save').addEventListener('click', async ()
     appSettings.theme = document.getElementById('opt-theme-select').value;
     appSettings.boardStyle = document.getElementById('opt-board-select').value;
     appSettings.stoneStyle = document.getElementById('opt-stone-select').value;
+    appSettings.optRestoredColors = document.getElementById('opt-restored-colors').checked;
     appSettings.optCurrentMove = document.getElementById('opt-current-move').checked;
     appSettings.optCoordHighlight = document.getElementById('opt-coord-highlight').checked;
     appSettings.optShowCoords = document.getElementById('opt-show-coords').checked;
@@ -5768,7 +5824,13 @@ document.addEventListener('click', (e) => {
 
     if (!optBox.contains(e.target) && !optBox.contains(globalMousedownTarget) && !e.target.closest('#btn-options-bottom') && !e.target.closest('#download-modal-overlay') && !isClickInColorPicker) {
         // Revert the live preview to the saved settings
-        applyTheme(appSettings.theme, appSettings.boardStyle, appSettings.stoneStyle, true);
+        let bStyle = appSettings.boardStyle;
+        let sStyle = appSettings.stoneStyle;
+        if (appSettings.optRestoredColors) {
+            if (bStyle === 'sandalwood') bStyle = 'sandalwood-r';
+            if (sStyle === 'ivory') sStyle = 'sandal-r';
+        }
+        applyTheme(appSettings.theme, bStyle, sStyle, true);
         optionsOverlay.classList.remove('active');
     }
 }
@@ -5923,7 +5985,7 @@ if (window.electronAPI && window.electronAPI.getDefaultEnginePaths) {
 }
 
 updateNewButtonState();
-loadTextures();
+loadTextures().then(() => render());
 
 document.querySelectorAll('.info-input, .comments-box').forEach(el => {
     el.addEventListener('input', updateNewButtonState);
