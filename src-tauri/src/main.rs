@@ -449,7 +449,7 @@ fn start_katago(
 
     #[cfg(not(target_os = "windows"))]
     let mut child = Command::new(clean_exe)
-        //.env("LD_LIBRARY_PATH", "/home/kerem/Downloads/TensorRT-10.16.1.11/lib:$LD_LIBRARY_PATH")
+        .env("LD_LIBRARY_PATH", "/home/kerem/Downloads/TensorRT-10.16.1.11/lib:$LD_LIBRARY_PATH")
         .args(args.clone())
         .current_dir(working_dir)
         .stdin(Stdio::piped())
