@@ -11,11 +11,12 @@
     "windows": [
       {
         "title": "Hoshi",
-        "width": 1800,
+        "width": 900,
         "height": 900,
         "transparent": false,
         "backgroundColor": "#8f8074",
-        "decorations": false
+        "decorations": true,
+        "resizable": true
       }
     ],
     "security": {

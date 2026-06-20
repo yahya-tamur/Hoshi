@@ -69,7 +69,7 @@ window.electronAPI = {
 
     stopEngine: async () => await invoke('stop_katago'),
 
-    chooseEngineFile: async (curr) => (await invoke('native_open_dialog', { title: "Select Engine", fName: "Executable", fExt: "exe" })) || curr,
+    chooseEngineFile: async (curr) => (await invoke('native_open_dialog', { title: "Select Engine", fName: "Executable", fExt: "" })) || curr,
     chooseNetworkFile: async (curr) => (await invoke('native_open_dialog', { title: "Select Model", fName: "Model", fExt: "bin.gz" })) || curr,
     chooseConfigFile: async (curr) => (await invoke('native_open_dialog', { title: "Select Config", fName: "Config", fExt: "cfg" })) || curr,
 

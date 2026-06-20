@@ -384,11 +384,15 @@ async fn native_open_dialog(
     f_ext: String,
 ) -> Result<Option<String>, String> {
     let path = tauri::async_runtime::spawn_blocking(move || {
-        app.dialog()
-            .file()
-            .set_title(title)
-            .add_filter(f_name, &[&f_ext])
-            .blocking_pick_file()
+        if f_name == "Executable" {
+            app.dialog().file().set_title(title).blocking_pick_file()
+        } else {
+            app.dialog()
+                .file()
+                .set_title(title)
+                .add_filter(f_name, &[&f_ext])
+                .blocking_pick_file()
+        }
     })
     .await
     .map_err(|e| e.to_string())?;
@@ -445,13 +449,19 @@ fn start_katago(
 
     #[cfg(not(target_os = "windows"))]
     let mut child = Command::new(clean_exe)
-        .args(args)
+        //.env("LD_LIBRARY_PATH", "/home/kerem/Downloads/TensorRT-10.16.1.11/lib:$LD_LIBRARY_PATH")
+        .args(args.clone())
         .current_dir(working_dir)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
         .map_err(|e| format!("KataGo Spawn Error: {}", e))?;
+
+    println!(
+        "{:?}",
+        Command::new(clean_exe).args(args).current_dir(working_dir)
+    );
 
     let stdout = child.stdout.take().unwrap();
     let win_out = window.clone();

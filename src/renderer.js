@@ -4767,17 +4767,6 @@ document.getElementById('nav-end').addEventListener('click', () => {
 // ============================================================================
 // 17. WINDOW CONTROLS
 // ============================================================================
-document.getElementById('win-min').addEventListener('click', () => {
-    if (window.electronAPI) window.electronAPI.minimizeWindow();
-});
-
-document.getElementById('win-max').addEventListener('click', () => {
-    if (window.electronAPI) window.electronAPI.maximizeWindow();
-});
-
-document.getElementById('win-close').addEventListener('click', () => {
-    if (window.electronAPI) window.electronAPI.closeWindow();
-});
 
 // --- PASS & RESIGN ACTIONS ---
 document.getElementById('btn-pass').addEventListener('click', (e) => {
@@ -5167,15 +5156,6 @@ document.getElementById('hotkeys-modal-save').addEventListener('click', (e) => {
 });
 
 const aboutOverlay = document.getElementById('about-modal-overlay');
-
-document.getElementById('btn-about').addEventListener('click', (e) => {
-    e.stopPropagation();
-    aboutOverlay.classList.add('active');
-});
-
-document.getElementById('btn-about-close').addEventListener('click', () => {
-    aboutOverlay.classList.remove('active');
-});
 
 function bootEngine() {
     if (window.electronAPI && window.electronAPI.startEngine) {
